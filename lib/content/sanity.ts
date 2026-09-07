@@ -42,24 +42,43 @@ export const sanityClient = createClient({
 
 const isDev = process.env.NODE_ENV === "development";
 
+// --- Cache tags -------------------------------------------------------------
+// Every content fetch carries the broad SANITY_TAG plus the document _type tag(s)
+// it depends on (detail queries also carry the tags of the types they embed via
+// references, so e.g. editing a case study also refreshes the sector/service
+// pages that show it). The /api/revalidate webhook maps a published doc's _type
+// to its tag so only the affected pages refresh; SANITY_TAG refreshes everything.
+export const SANITY_TAG = "sanity";
+export const CONTENT_TYPES = [
+  "metric",
+  "capability",
+  "sector",
+  "approachStep",
+  "caseStudy",
+  "insight",
+] as const;
+export type ContentType = (typeof CONTENT_TYPES)[number];
+
 /**
  * Fetch from Sanity. Returns `fallback` when Sanity is not yet configured so the
  * production build can complete without credentials.
  *
  * Caching is per-environment:
  *   - dev: `no-store` — never cached, so a published edit appears on reload.
- *   - prod: `next: { revalidate }` — ISR, keeping pages statically generated.
+ *   - prod: `next: { revalidate, tags }` — ISR (the time-based FALLBACK) plus
+ *     cache tags for on-demand `revalidateTag` from the Sanity webhook.
  */
 async function sanityFetch<T>(
   query: string,
   fallback: T,
+  tags: string[],
   params: Record<string, unknown> = {},
 ): Promise<T> {
   if (!isSanityConfigured) return fallback;
   return sanityClient.fetch<T>(
     query,
     params,
-    isDev ? { cache: "no-store" } : { next: { revalidate } },
+    isDev ? { cache: "no-store" } : { next: { revalidate, tags } },
   );
 }
 
@@ -124,22 +143,22 @@ export const insightsQuery = /* groq */ `
 // --- Typed fetchers ---------------------------------------------------------
 
 export const fetchMetrics = () =>
-  sanityFetch<Metric[]>(metricsQuery, []);
+  sanityFetch<Metric[]>(metricsQuery, [], [SANITY_TAG, "metric"]);
 
 export const fetchCapabilities = () =>
-  sanityFetch<Capability[]>(capabilitiesQuery, []);
+  sanityFetch<Capability[]>(capabilitiesQuery, [], [SANITY_TAG, "capability"]);
 
 export const fetchSectors = () =>
-  sanityFetch<Sector[]>(sectorsQuery, []);
+  sanityFetch<Sector[]>(sectorsQuery, [], [SANITY_TAG, "sector"]);
 
 export const fetchApproach = () =>
-  sanityFetch<ApproachStep[]>(approachQuery, []);
+  sanityFetch<ApproachStep[]>(approachQuery, [], [SANITY_TAG, "approachStep"]);
 
 export const fetchCaseStudies = () =>
-  sanityFetch<CaseStudy[]>(caseStudiesQuery, []);
+  sanityFetch<CaseStudy[]>(caseStudiesQuery, [], [SANITY_TAG, "caseStudy"]);
 
 export const fetchInsights = () =>
-  sanityFetch<Insight[]>(insightsQuery, []);
+  sanityFetch<Insight[]>(insightsQuery, [], [SANITY_TAG, "insight"]);
 
 // --- Detail (by-slug) queries -----------------------------------------------
 // Each resolves its cross-link references in the same query so a detail page
@@ -236,22 +255,42 @@ export const insightSlugsQuery = /* groq */ `
 // A missing document (or unconfigured Sanity) yields null.
 
 export const fetchServiceBySlug = (slug: string) =>
-  sanityFetch<ServiceDetail | null>(serviceBySlugQuery, null, { slug });
+  sanityFetch<ServiceDetail | null>(
+    serviceBySlugQuery,
+    null,
+    [SANITY_TAG, "capability", "caseStudy"], // embeds related case studies
+    { slug },
+  );
 
 export const fetchSectorBySlug = (slug: string) =>
-  sanityFetch<SectorDetail | null>(sectorBySlugQuery, null, { slug });
+  sanityFetch<SectorDetail | null>(
+    sectorBySlugQuery,
+    null,
+    [SANITY_TAG, "sector", "caseStudy", "capability"], // embeds related work + services
+    { slug },
+  );
 
 export const fetchCaseStudyBySlug = (slug: string) =>
-  sanityFetch<CaseStudyDetail | null>(caseStudyBySlugQuery, null, { slug });
+  sanityFetch<CaseStudyDetail | null>(
+    caseStudyBySlugQuery,
+    null,
+    [SANITY_TAG, "caseStudy", "sector", "capability"], // embeds sector + services
+    { slug },
+  );
 
 export const fetchInsightBySlug = (slug: string) =>
-  sanityFetch<InsightDetail | null>(insightBySlugQuery, null, { slug });
+  sanityFetch<InsightDetail | null>(
+    insightBySlugQuery,
+    null,
+    [SANITY_TAG, "insight"],
+    { slug },
+  );
 
 export const fetchServiceSlugs = () =>
-  sanityFetch<string[]>(serviceSlugsQuery, []);
+  sanityFetch<string[]>(serviceSlugsQuery, [], [SANITY_TAG, "capability"]);
 export const fetchSectorSlugs = () =>
-  sanityFetch<string[]>(sectorSlugsQuery, []);
+  sanityFetch<string[]>(sectorSlugsQuery, [], [SANITY_TAG, "sector"]);
 export const fetchCaseStudySlugs = () =>
-  sanityFetch<string[]>(caseStudySlugsQuery, []);
+  sanityFetch<string[]>(caseStudySlugsQuery, [], [SANITY_TAG, "caseStudy"]);
 export const fetchInsightSlugs = () =>
-  sanityFetch<string[]>(insightSlugsQuery, []);
+  sanityFetch<string[]>(insightSlugsQuery, [], [SANITY_TAG, "insight"]);
