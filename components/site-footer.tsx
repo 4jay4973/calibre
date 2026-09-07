@@ -12,15 +12,15 @@ export function SiteFooter() {
           </div>
           <div className="foot-col">
             <h4>Explore</h4>
-            <a href="#capabilities">Capabilities</a>
-            <a href="#sectors">Sectors</a>
-            <a href="#approach">Approach</a>
-            <a href="#cases">Selected work</a>
-            <a href="#insights">Insights</a>
+            <a href="/services">Capabilities</a>
+            <a href="/#sectors">Sectors</a>
+            <a href="/#approach">Approach</a>
+            <a href="/work">Selected work</a>
+            <a href="/insights">Insights</a>
           </div>
           <div className="foot-col">
             <h4>Contact</h4>
-            <a href="#contact">Start a project</a>
+            <a href="/#contact">Start a project</a>
             <a href="#">hello@calibre-consulting.example</a>
             <a href="#">+91 00000 00000</a>
             <a href="#">WhatsApp</a>

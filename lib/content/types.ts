@@ -23,6 +23,8 @@ export interface Capability {
   description: string;
   // --- Detail-page fields (optional; NOT used by the homepage card). ---
   slug?: string;
+  /** Computed in the getter: `/services/{slug}` when a slug exists. */
+  href?: string;
   overview?: string;
   whatItCovers?: string[];
   whoItsFor?: string;
@@ -35,6 +37,8 @@ export interface Sector {
   finishLabel: string;
   description: string;
   products: string[];
+  /** Computed in the getter: `/sectors/{slug}`. */
+  href?: string;
 }
 
 export interface ApproachStep {
@@ -52,6 +56,8 @@ export interface CaseStudy {
   resultNote: string;
   // --- Detail-page fields (optional). Stays blinded — no client-identifying data. ---
   slug?: string;
+  /** Computed in the getter: `/work/{slug}` when a slug exists. */
+  href?: string;
   bodyDetail?: PortableTextValue;
 }
 
@@ -114,6 +120,8 @@ export interface ServiceDetail extends Capability {
 /** Sector detail page payload. */
 export interface SectorDetail extends Sector {
   relatedServices: ServiceRef[];
+  /** Case studies that reference this sector (reverse lookup). */
+  relatedWork: CaseStudyRef[];
 }
 
 /** Case-study detail page payload (still blinded). */

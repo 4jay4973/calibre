@@ -33,11 +33,23 @@ import type {
 } from "./types";
 
 // --- Homepage getters (unchanged signatures + return types) -----------------
+// Where an item has a slug we attach a computed `href` to its detail page, so
+// any card can deep-link straight from the getter without a component edit.
+// Homepage sections that don't render `href` are unaffected.
 export async function getMetrics(): Promise<Metric[]> { return fetchMetrics(); }
-export async function getCapabilities(): Promise<Capability[]> { return fetchCapabilities(); }
-export async function getSectors(): Promise<Sector[]> { return fetchSectors(); }
+export async function getCapabilities(): Promise<Capability[]> {
+  const caps = await fetchCapabilities();
+  return caps.map((c) => (c.slug ? { ...c, href: `/services/${c.slug}` } : c));
+}
+export async function getSectors(): Promise<Sector[]> {
+  const sectors = await fetchSectors();
+  return sectors.map((s) => (s.slug ? { ...s, href: `/sectors/${s.slug}` } : s));
+}
 export async function getApproach(): Promise<ApproachStep[]> { return fetchApproach(); }
-export async function getCaseStudies(): Promise<CaseStudy[]> { return fetchCaseStudies(); }
+export async function getCaseStudies(): Promise<CaseStudy[]> {
+  const cases = await fetchCaseStudies();
+  return cases.map((c) => (c.slug ? { ...c, href: `/work/${c.slug}` } : c));
+}
 // Insights link to their real article page when they have a slug. Computing the
 // href here means the homepage insight cards (which read `href`) point at the
 // article with no component edit; slug-less rows keep their stored href.

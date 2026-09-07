@@ -78,7 +78,8 @@ export const capabilitiesQuery = /* groq */ `
   *[_type == "capability"] | order(order asc) {
     icon,
     title,
-    description
+    description,
+    "slug": slug.current
   }`;
 
 export const sectorsQuery = /* groq */ `
@@ -105,7 +106,8 @@ export const caseStudiesQuery = /* groq */ `
     challenge,
     approach,
     resultValue,
-    resultNote
+    resultNote,
+    "slug": slug.current
   }`;
 
 export const insightsQuery = /* groq */ `
@@ -187,7 +189,11 @@ export const sectorBySlugQuery = /* groq */ `
     finishLabel,
     description,
     products,
-    "relatedServices": coalesce(relatedServices[]->${serviceRefProjection}, [])
+    "relatedServices": coalesce(relatedServices[]->${serviceRefProjection}, []),
+    "relatedWork": coalesce(
+      *[_type == "caseStudy" && references(^._id)] | order(order asc) ${caseRefProjection},
+      []
+    )
   }`;
 
 export const caseStudyBySlugQuery = /* groq */ `
