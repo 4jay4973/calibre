@@ -1,3 +1,11 @@
+import {
+  CONTACT_EMAIL,
+  CONTACT_PHONE_DISPLAY,
+  MAILTO,
+  TEL,
+  WHATSAPP_URL,
+} from "@/lib/contact";
+
 export function SiteFooter() {
   return (
     <footer>
@@ -21,9 +29,9 @@ export function SiteFooter() {
           <div className="foot-col">
             <h4>Contact</h4>
             <a href="/#contact">Start a project</a>
-            <a href="#">hello@calibre-consulting.example</a>
-            <a href="#">+91 00000 00000</a>
-            <a href="#">WhatsApp</a>
+            <a href={MAILTO}>{CONTACT_EMAIL}</a>
+            <a href={TEL}>{CONTACT_PHONE_DISPLAY}</a>
+            <a href={WHATSAPP_URL} target="_blank" rel="noreferrer">WhatsApp</a>
           </div>
         </div>
         <div className="foot-bot">
