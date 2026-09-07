@@ -34,7 +34,6 @@ export function Reveal({
 
   const cls = `reveal ${shown ? "in" : ""} ${className}`.trim();
   return (
-    // @ts-expect-error - dynamic tag
     <Tag ref={ref} className={cls}>
       {children}
     </Tag>
