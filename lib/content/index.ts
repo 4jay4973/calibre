@@ -15,19 +15,43 @@ import {
   fetchApproach,
   fetchCapabilities,
   fetchCaseStudies,
+  fetchCaseStudyBySlug,
+  fetchCaseStudySlugs,
+  fetchInsightBySlug,
+  fetchInsightSlugs,
   fetchInsights,
   fetchMetrics,
+  fetchSectorBySlug,
+  fetchSectorSlugs,
   fetchSectors,
+  fetchServiceBySlug,
+  fetchServiceSlugs,
 } from "./sanity";
 import type {
   Metric, Capability, Sector, ApproachStep, CaseStudy, Insight,
+  ServiceDetail, SectorDetail, CaseStudyDetail, InsightDetail,
 } from "./types";
 
+// --- Homepage getters (unchanged signatures + return types) -----------------
 export async function getMetrics(): Promise<Metric[]> { return fetchMetrics(); }
 export async function getCapabilities(): Promise<Capability[]> { return fetchCapabilities(); }
 export async function getSectors(): Promise<Sector[]> { return fetchSectors(); }
 export async function getApproach(): Promise<ApproachStep[]> { return fetchApproach(); }
 export async function getCaseStudies(): Promise<CaseStudy[]> { return fetchCaseStudies(); }
 export async function getInsights(): Promise<Insight[]> { return fetchInsights(); }
+
+// --- Detail getters (for the internal page templates) -----------------------
+// Each resolves cross-link references, so a page gets its related items in one
+// call. They return null when the slug doesn't exist (or Sanity isn't set up).
+export async function getServiceBySlug(slug: string): Promise<ServiceDetail | null> { return fetchServiceBySlug(slug); }
+export async function getSectorBySlug(slug: string): Promise<SectorDetail | null> { return fetchSectorBySlug(slug); }
+export async function getCaseStudyBySlug(slug: string): Promise<CaseStudyDetail | null> { return fetchCaseStudyBySlug(slug); }
+export async function getInsightBySlug(slug: string): Promise<InsightDetail | null> { return fetchInsightBySlug(slug); }
+
+// --- Slug lists (for generateStaticParams in the page templates) ------------
+export async function getAllServiceSlugs(): Promise<string[]> { return fetchServiceSlugs(); }
+export async function getAllSectorSlugs(): Promise<string[]> { return fetchSectorSlugs(); }
+export async function getAllCaseStudySlugs(): Promise<string[]> { return fetchCaseStudySlugs(); }
+export async function getAllInsightSlugs(): Promise<string[]> { return fetchInsightSlugs(); }
 
 export type * from "./types";

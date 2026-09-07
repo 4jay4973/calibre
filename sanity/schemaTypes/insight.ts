@@ -29,8 +29,37 @@ export const insight = defineType({
       name: "href",
       title: "Link (href)",
       type: "string",
-      description: 'Where the note links to. Use "#" until the article exists.',
+      description:
+        'External/legacy link for the homepage card. Use "#" or the internal ' +
+        "slug path once the article page exists.",
       validation: (rule) => rule.required(),
+    }),
+    // --- Detail-page (article) fields — all optional. ---
+    defineField({
+      name: "slug",
+      title: "Slug",
+      type: "slug",
+      options: { source: "title", maxLength: 96 },
+      description: "URL segment for the future article page.",
+    }),
+    defineField({
+      name: "body",
+      title: "Body",
+      type: "array",
+      of: [{ type: "block" }],
+      description: "The article content.",
+    }),
+    defineField({
+      name: "publishedAt",
+      title: "Published at",
+      type: "date",
+      options: { dateFormat: "YYYY-MM-DD" },
+    }),
+    defineField({
+      name: "readMinutes",
+      title: "Read time (minutes)",
+      type: "number",
+      validation: (rule) => rule.min(1).integer(),
     }),
     defineField({
       name: "order",

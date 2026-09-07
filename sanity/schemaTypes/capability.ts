@@ -40,7 +40,42 @@ export const capability = defineType({
       title: "Description",
       type: "text",
       rows: 3,
+      description: "Homepage card copy. Keep it short.",
       validation: (rule) => rule.required(),
+    }),
+    // --- Detail-page fields (all optional; not shown on the homepage card). ---
+    defineField({
+      name: "slug",
+      title: "Slug",
+      type: "slug",
+      options: { source: "title", maxLength: 96 },
+      description: "URL segment for the future service detail page.",
+    }),
+    defineField({
+      name: "overview",
+      title: "Overview",
+      type: "text",
+      rows: 4,
+      description: "Longer intro for the detail page.",
+    }),
+    defineField({
+      name: "whatItCovers",
+      title: "What it covers",
+      type: "array",
+      of: [{ type: "string" }],
+      description: "Bullet points of what the service includes.",
+    }),
+    defineField({
+      name: "whoItsFor",
+      title: "Who it's for",
+      type: "text",
+      rows: 2,
+    }),
+    defineField({
+      name: "relatedCaseStudies",
+      title: "Related case studies",
+      type: "array",
+      of: [{ type: "reference", to: [{ type: "caseStudy" }] }],
     }),
     defineField({
       name: "order",

@@ -56,6 +56,14 @@ export const sector = defineType({
       of: [{ type: "string" }],
       validation: (rule) => rule.required().min(1),
     }),
+    // --- Cross-links (optional) — for the future sector detail page. ---
+    defineField({
+      name: "relatedServices",
+      title: "Related services",
+      type: "array",
+      of: [{ type: "reference", to: [{ type: "capability" }] }],
+      description: "Services most relevant to this sector.",
+    }),
     defineField({
       name: "order",
       title: "Order",

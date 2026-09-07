@@ -23,9 +23,13 @@ import type {
   ApproachStep,
   Capability,
   CaseStudy,
+  CaseStudyDetail,
   Insight,
+  InsightDetail,
   Metric,
   Sector,
+  SectorDetail,
+  ServiceDetail,
 } from "./types";
 
 export const sanityClient = createClient({
@@ -46,11 +50,15 @@ const isDev = process.env.NODE_ENV === "development";
  *   - dev: `no-store` — never cached, so a published edit appears on reload.
  *   - prod: `next: { revalidate }` — ISR, keeping pages statically generated.
  */
-async function sanityFetch<T>(query: string, fallback: T): Promise<T> {
+async function sanityFetch<T>(
+  query: string,
+  fallback: T,
+  params: Record<string, unknown> = {},
+): Promise<T> {
   if (!isSanityConfigured) return fallback;
   return sanityClient.fetch<T>(
     query,
-    {},
+    params,
     isDev ? { cache: "no-store" } : { next: { revalidate } },
   );
 }
@@ -127,3 +135,114 @@ export const fetchCaseStudies = () =>
 
 export const fetchInsights = () =>
   sanityFetch<Insight[]>(insightsQuery, []);
+
+// --- Detail (by-slug) queries -----------------------------------------------
+// Each resolves its cross-link references in the same query so a detail page
+// gets everything in one round trip. `coalesce(refs[]->{...}, [])` guarantees an
+// array (a missing field would otherwise project to null).
+
+// Reusable projections for the compact reference shapes (*Ref in types.ts).
+const serviceRefProjection = `{
+    "slug": slug.current,
+    title,
+    icon,
+    description
+  }`;
+
+const caseRefProjection = `{
+    "slug": slug.current,
+    title,
+    tag,
+    resultValue,
+    resultNote
+  }`;
+
+const sectorRefProjection = `{
+    "slug": slug.current,
+    name,
+    finishLabel,
+    description
+  }`;
+
+export const serviceBySlugQuery = /* groq */ `
+  *[_type == "capability" && slug.current == $slug][0]{
+    icon,
+    title,
+    description,
+    "slug": slug.current,
+    overview,
+    whatItCovers,
+    whoItsFor,
+    "relatedCaseStudies": coalesce(relatedCaseStudies[]->${caseRefProjection}, [])
+  }`;
+
+export const sectorBySlugQuery = /* groq */ `
+  *[_type == "sector" && slug.current == $slug][0]{
+    "slug": slug.current,
+    name,
+    swatch,
+    finishLabel,
+    description,
+    products,
+    "relatedServices": coalesce(relatedServices[]->${serviceRefProjection}, [])
+  }`;
+
+export const caseStudyBySlugQuery = /* groq */ `
+  *[_type == "caseStudy" && slug.current == $slug][0]{
+    tag,
+    title,
+    challenge,
+    approach,
+    resultValue,
+    resultNote,
+    "slug": slug.current,
+    bodyDetail,
+    "sector": sector->${sectorRefProjection},
+    "relatedServices": coalesce(relatedServices[]->${serviceRefProjection}, [])
+  }`;
+
+export const insightBySlugQuery = /* groq */ `
+  *[_type == "insight" && slug.current == $slug][0]{
+    topic,
+    title,
+    excerpt,
+    href,
+    "slug": slug.current,
+    body,
+    publishedAt,
+    readMinutes
+  }`;
+
+// --- Slug-list queries (for generateStaticParams later) ---------------------
+export const serviceSlugsQuery = /* groq */ `
+  *[_type == "capability" && defined(slug.current)].slug.current`;
+export const sectorSlugsQuery = /* groq */ `
+  *[_type == "sector" && defined(slug.current)].slug.current`;
+export const caseStudySlugsQuery = /* groq */ `
+  *[_type == "caseStudy" && defined(slug.current)].slug.current`;
+export const insightSlugsQuery = /* groq */ `
+  *[_type == "insight" && defined(slug.current)].slug.current`;
+
+// --- Typed detail fetchers --------------------------------------------------
+// A missing document (or unconfigured Sanity) yields null.
+
+export const fetchServiceBySlug = (slug: string) =>
+  sanityFetch<ServiceDetail | null>(serviceBySlugQuery, null, { slug });
+
+export const fetchSectorBySlug = (slug: string) =>
+  sanityFetch<SectorDetail | null>(sectorBySlugQuery, null, { slug });
+
+export const fetchCaseStudyBySlug = (slug: string) =>
+  sanityFetch<CaseStudyDetail | null>(caseStudyBySlugQuery, null, { slug });
+
+export const fetchInsightBySlug = (slug: string) =>
+  sanityFetch<InsightDetail | null>(insightBySlugQuery, null, { slug });
+
+export const fetchServiceSlugs = () =>
+  sanityFetch<string[]>(serviceSlugsQuery, []);
+export const fetchSectorSlugs = () =>
+  sanityFetch<string[]>(sectorSlugsQuery, []);
+export const fetchCaseStudySlugs = () =>
+  sanityFetch<string[]>(caseStudySlugsQuery, []);
+export const fetchInsightSlugs = () =>
+  sanityFetch<string[]>(insightSlugsQuery, []);
