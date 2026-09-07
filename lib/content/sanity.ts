@@ -1,11 +1,15 @@
 // Typed Sanity client + GROQ queries.
 // ---------------------------------------------------------------------------
-// The client is read-only and CDN-backed. Getters in ./index.ts use the
-// `sanityFetch` helper, which:
+// Read-only client reading the *published* perspective. Getters in ./index.ts
+// use the `sanityFetch` helper, which:
 //   - returns an empty result when Sanity isn't configured yet (so `next build`
 //     works without an account — see sanity/env.ts), and
-//   - tags every request with ISR revalidation so pages stay statically
-//     generated and refresh at most once per `revalidate` window.
+//   - caches per environment: uncached in dev (so published edits show on the
+//     next reload, no cache-clearing), ISR in production (so pages stay
+//     statically generated and refresh at most once per `revalidate` window).
+//
+// `useCdn: false` — reads hit the live API, not the cached CDN, so content is
+// always current. (CDN can be reconsidered for production separately.)
 // ---------------------------------------------------------------------------
 import { createClient } from "next-sanity";
 import {
@@ -28,20 +32,26 @@ export const sanityClient = createClient({
   projectId,
   dataset,
   apiVersion,
-  useCdn: true, // published, cacheable content — served from the CDN.
+  useCdn: false, // always read the live API so published edits are fresh.
   perspective: "published",
 });
 
+const isDev = process.env.NODE_ENV === "development";
+
 /**
- * Fetch from Sanity with ISR revalidation. Returns `fallback` when Sanity is
- * not yet configured so the production build can complete without credentials.
+ * Fetch from Sanity. Returns `fallback` when Sanity is not yet configured so the
+ * production build can complete without credentials.
+ *
+ * Caching is per-environment:
+ *   - dev: `no-store` — never cached, so a published edit appears on reload.
+ *   - prod: `next: { revalidate }` — ISR, keeping pages statically generated.
  */
 async function sanityFetch<T>(query: string, fallback: T): Promise<T> {
   if (!isSanityConfigured) return fallback;
   return sanityClient.fetch<T>(
     query,
     {},
-    { next: { revalidate } },
+    isDev ? { cache: "no-store" } : { next: { revalidate } },
   );
 }
 

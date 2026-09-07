@@ -47,10 +47,14 @@ must not change as a result.
 - Homepage is built and componentized (`app/page.tsx` + `components/sections/*`).
 - All content is realistic **placeholder**; the brand name "Calibre" is a placeholder.
 - The contact form (`components/sections/contact.tsx`) is NOT wired to a backend yet.
-- No CMS yet — getters return local placeholder data from `data.ts`.
+- CMS is Sanity: getters in `lib/content/index.ts` fetch from Sanity
+  (`lib/content/sanity.ts`), embedded Studio at `/studio`, schemas in
+  `sanity/schemaTypes/`. `data.ts` is gone; seed the placeholder content with
+  `npm run seed`. Dev reads are uncached; production uses ISR (`revalidate`).
 
 ## Still to build (typical upcoming tasks)
-- Sanity integration (schemas from `types.ts`, client, getters, env, Studio, preview).
+- Sanity: draft/preview mode (perspective + draft-aware getters), production CDN
+  strategy, and adding the deployed URL to the project's CORS origins.
 - Internal page templates: service, sector, case-study, insight/article + routing.
 - Contact route handler (`app/api/contact/route.ts`) via Resend + spam protection.
 - SEO: `sitemap.ts`, `robots.ts`, JSON-LD (Organization, Service, Article), OG images.
