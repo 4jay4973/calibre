@@ -38,7 +38,15 @@ export async function getCapabilities(): Promise<Capability[]> { return fetchCap
 export async function getSectors(): Promise<Sector[]> { return fetchSectors(); }
 export async function getApproach(): Promise<ApproachStep[]> { return fetchApproach(); }
 export async function getCaseStudies(): Promise<CaseStudy[]> { return fetchCaseStudies(); }
-export async function getInsights(): Promise<Insight[]> { return fetchInsights(); }
+// Insights link to their real article page when they have a slug. Computing the
+// href here means the homepage insight cards (which read `href`) point at the
+// article with no component edit; slug-less rows keep their stored href.
+export async function getInsights(): Promise<Insight[]> {
+  const insights = await fetchInsights();
+  return insights.map((n) =>
+    n.slug ? { ...n, href: `/insights/${n.slug}` } : n,
+  );
+}
 
 // --- Detail getters (for the internal page templates) -----------------------
 // Each resolves cross-link references, so a page gets its related items in one

@@ -293,6 +293,21 @@ footer{background:var(--ink-2);color:var(--slate-on-dark);padding:70px 0 40px;bo
 .related-card h3{font-size:1.08rem;font-weight:700;font-stretch:100%;letter-spacing:-.01em;line-height:1.3}
 .related-card .rc-note{margin-top:10px;font-size:.9rem;color:var(--slate);line-height:1.5}
 
+/* Insights index — extra card meta (reuses the global .ins / .ins-grid look). */
+.ins-meta{font-size:.8rem;color:var(--slate-2);letter-spacing:.02em;margin-bottom:16px;display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.ins-meta .dot{color:var(--line)}
+
+/* Article (insight detail) — single readable column. */
+.article{padding:64px 0 8px}
+.article-col{max-width:68ch}
+.article .breadcrumbs{margin-bottom:26px}
+.article-head{padding-bottom:28px;border-bottom:1px solid var(--line);margin-bottom:38px}
+.article-topic{font-size:.82rem;font-weight:600;color:var(--accent);letter-spacing:.02em;margin-bottom:16px}
+.article-head h1{font-size:clamp(1.9rem,3.6vw,2.8rem);letter-spacing:-.02em;line-height:1.06}
+.article-meta{margin-top:20px;font-size:.86rem;color:var(--slate-2);display:flex;gap:.55rem;align-items:center;flex-wrap:wrap}
+.article-meta .dot{color:var(--line)}
+.article-more{padding:72px 0 96px}
+
 @media(max-width:1000px){
   .ih-grid{grid-template-columns:1fr;gap:24px}
   .ih-metric{text-align:left}

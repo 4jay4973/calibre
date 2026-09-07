@@ -113,7 +113,10 @@ export const insightsQuery = /* groq */ `
     topic,
     title,
     excerpt,
-    href
+    href,
+    "slug": slug.current,
+    publishedAt,
+    readMinutes
   }`;
 
 // --- Typed fetchers ---------------------------------------------------------

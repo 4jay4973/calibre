@@ -7,7 +7,7 @@ const links = [
   { href: "#approach", label: "Approach" },
   { href: "#cases", label: "Work" },
   { href: "#about", label: "About" },
-  { href: "#insights", label: "Insights" },
+  { href: "/insights", label: "Insights" },
 ];
 
 export function SiteHeader() {
