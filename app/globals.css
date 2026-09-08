@@ -31,15 +31,18 @@ img{max-width:100%;display:block}
 .site-header{position:sticky;top:0;z-index:50;background:rgba(231,234,235,.82);
   backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
 .nav{display:flex;align-items:center;justify-content:space-between;height:72px}
-.brand{display:flex;align-items:baseline;gap:.5rem;font-weight:900;font-stretch:125%;font-size:1.35rem;letter-spacing:-.03em}
+.brand{display:flex;align-items:baseline;gap:0;font-weight:900;font-stretch:125%;font-size:1.35rem;letter-spacing:-.03em}
 .brand .dot{color:var(--accent)}
-.brand small{font-weight:500;font-stretch:100%;font-size:.66rem;letter-spacing:.08em;color:var(--slate);text-transform:uppercase;align-self:center}
+.brand small{font-weight:500;font-stretch:100%;font-size:.66rem;letter-spacing:.08em;color:var(--slate);text-transform:uppercase;align-self:center;margin-left:.5rem}
 .nav-links{display:flex;gap:2rem;align-items:center}
 .nav-links a{font-size:.92rem;font-weight:500;color:var(--slate);transition:color .15s}
 .nav-links a:hover{color:var(--ink)}
 .nav-cta{display:flex;align-items:center;gap:1.2rem}
 .menu-btn{display:none;background:none;border:0;cursor:pointer;padding:8px}
-.menu-btn span{display:block;width:22px;height:2px;background:var(--ink);margin:4px 0}
+.menu-btn span{display:block;width:22px;height:2px;background:var(--ink);margin:4px 0;transform-origin:center;transition:transform .3s ease,opacity .2s ease}
+.menu-btn[aria-expanded="true"] span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+.menu-btn[aria-expanded="true"] span:nth-child(2){opacity:0}
+.menu-btn[aria-expanded="true"] span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
 .hero{background:var(--ink);color:var(--paper-on-dark);position:relative;overflow:hidden}
 .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
 .eyebrow{display:inline-flex;align-items:center;gap:.6rem;font-size:.8rem;font-weight:600;letter-spacing:.02em;color:var(--slate-on-dark);margin-bottom:26px}
@@ -209,7 +212,7 @@ footer{background:var(--ink-2);color:var(--slate-on-dark);padding:70px 0 40px;bo
 .foot-bot{display:flex;justify-content:space-between;align-items:center;padding-top:28px;font-size:.82rem;flex-wrap:wrap;gap:12px}
 .reveal{opacity:0;transform:translateY(18px)}
 .reveal.in{opacity:1;transform:none;transition:opacity .7s ease,transform .7s ease}
-@media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none}.nav-links,.menu-btn span{transition:none}}
 @media(max-width:1000px){
   .hero-grid{grid-template-columns:1fr;gap:44px}
   .hero-fig-wrap{max-width:520px}
@@ -218,7 +221,7 @@ footer{background:var(--ink-2);color:var(--slate-on-dark);padding:70px 0 40px;bo
   .metric{border-bottom:1px solid var(--line-dark)}
   .cap-grid{grid-template-columns:repeat(2,1fr)}
   .steps{grid-template-columns:repeat(2,1fr)}
-  .case-grid{grid-template-columns:1fr;max-width:520px}
+  .case-grid{grid-template-columns:repeat(2,1fr)}
   .ins-grid{grid-template-columns:1fr}
   .about-grid{grid-template-columns:1fr;gap:36px}
   .portrait{max-width:340px}
@@ -230,18 +233,25 @@ footer{background:var(--ink-2);color:var(--slate-on-dark);padding:70px 0 40px;bo
   .sector-panel{position:relative}
   .sector-panel:not(.is-active){display:none}
 }
-@media(max-width:720px){
-  body{font-size:16px}
-  .wrap{padding:0 22px}
-  .nav-links{display:none;position:absolute;top:100%;left:0;right:0;background:var(--paper);flex-direction:column;gap:0;padding:8px 22px 20px;border-bottom:1px solid var(--line)}
-  .nav-links.open{display:flex}
+/* Collapse the header nav to the hamburger before the full desktop nav gets
+   cramped. Below ~1024px the brand, links and CTA lose their spacing (gaps
+   collapse and the CTA wraps), so switch to the menu while spacing is still
+   consistent. */
+@media(max-width:1024px){
+  .nav-links{display:flex;position:absolute;top:100%;left:0;right:0;background:var(--paper);flex-direction:column;gap:0;padding:8px 22px 20px;border-bottom:1px solid var(--line);opacity:0;visibility:hidden;transform:translateY(-10px);pointer-events:none;transition:opacity .22s ease,transform .22s ease,visibility 0s .22s}
+  .nav-links.open{opacity:1;visibility:visible;transform:translateY(0);pointer-events:auto;transition:opacity .22s ease,transform .22s ease}
   .nav-links a{padding:12px 0;border-bottom:1px solid var(--line);width:100%}
   .nav-cta .btn{display:none}
   .menu-btn{display:block}
+}
+@media(max-width:720px){
+  body{font-size:16px}
+  .wrap{padding:0 22px}
   section{padding:72px 0}
   .metrics-inner{grid-template-columns:1fr}
   .metric{border-right:0}
   .cap-grid{grid-template-columns:1fr}
+  .case-grid{grid-template-columns:1fr}
   .steps{grid-template-columns:1fr}
   .srow-name{font-size:1.4rem}
   .swatch{height:210px}
@@ -342,6 +352,9 @@ footer{background:var(--ink-2);color:var(--slate-on-dark);padding:70px 0 40px;bo
 .chip-links a:hover span{border-color:var(--accent);color:var(--accent)}
 .detail-more{padding:64px 0 88px}
 .detail-stack{display:grid;gap:52px}
+/* Let grid items shrink below their content's min-size, so a RelatedGrid's
+   360px min-columns collapse to fewer columns instead of overflowing the wrap. */
+.detail-stack>*{min-width:0}
 
 @media(max-width:1000px){
   .ih-grid{grid-template-columns:1fr;gap:24px}
