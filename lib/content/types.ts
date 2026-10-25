@@ -111,6 +111,20 @@ export interface AboutCopy {
   standards: string[];
 }
 
+/** Contact section: header + the public contact details (also used by the footer). */
+export interface ContactCopy extends SectionHeadCopy {
+  emailLabel: string;
+  /** Public email shown on the site (mailto link). Not the enquiry inbox. */
+  email: string;
+  phoneLabel: string;
+  /** Phone as displayed, e.g. "+91 98765 43210". tel: link uses its digits. */
+  phone: string;
+  /** WhatsApp number, digits with country code. Empty = use the phone number. */
+  whatsapp: string;
+  basedInLabel: string;
+  basedIn: string;
+}
+
 export interface SiteCopy {
   hero: HeroCopy;
   capabilities: SectionHeadCopy;
@@ -119,7 +133,7 @@ export interface SiteCopy {
   cases: SectionHeadCopy;
   confidentiality: ConfidentialityCopy;
   insights: SectionHeadCopy;
-  contact: SectionHeadCopy;
+  contact: ContactCopy;
   about: AboutCopy;
 }
 

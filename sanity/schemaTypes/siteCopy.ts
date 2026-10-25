@@ -114,7 +114,53 @@ export const siteCopy = defineType({
       ],
     }),
     sectionHead("insights", "Insights", "Header of the insights grid."),
-    sectionHead("contact", "Contact", "Header of the contact section (left column)."),
+    defineField({
+      name: "contact",
+      title: "Contact",
+      description:
+        "Contact section (left column; the form itself is fixed). The email, phone and WhatsApp number are also shown in the footer.",
+      type: "object",
+      options: { collapsible: true, collapsed: true },
+      fields: [
+        defineField({ name: "kicker", title: "Kicker", type: "string", validation: (rule) => rule.required() }),
+        defineField({ name: "heading", title: "Heading", type: "string", validation: (rule) => rule.required() }),
+        defineField({ name: "intro", title: "Intro text", type: "text", rows: 3, validation: (rule) => rule.required() }),
+        defineField({ name: "emailLabel", title: "Email — label", type: "string", validation: (rule) => rule.required() }),
+        defineField({
+          name: "email",
+          title: "Email — public address",
+          type: "string",
+          description: "Shown on the site as a mailto link. (Enquiries from the form go to the inbox set on the server.)",
+          validation: (rule) => rule.required().email(),
+        }),
+        defineField({ name: "phoneLabel", title: "Phone — label", type: "string", validation: (rule) => rule.required() }),
+        defineField({
+          name: "phone",
+          title: "Phone — as displayed",
+          type: "string",
+          description: 'Include the country code, e.g. "+91 98765 43210". The call link uses its digits.',
+          validation: (rule) =>
+            rule.required().custom((v) =>
+              typeof v === "string" && v.replace(/[^\d]/g, "").length >= 8
+                ? true
+                : "Enter a full phone number with country code.",
+            ),
+        }),
+        defineField({
+          name: "whatsapp",
+          title: "WhatsApp number (optional)",
+          type: "string",
+          description:
+            "Digits with country code, e.g. 919876543210. Leave empty to use the phone number above.",
+          validation: (rule) =>
+            rule.custom((v) =>
+              !v || /^\+?[\d\s]{8,20}$/.test(v) ? true : "Digits only, with country code.",
+            ),
+        }),
+        defineField({ name: "basedInLabel", title: "Location — label", type: "string", validation: (rule) => rule.required() }),
+        defineField({ name: "basedIn", title: "Location — text", type: "string", validation: (rule) => rule.required() }),
+      ],
+    }),
     defineField({
       name: "about",
       title: "About the consultant",

@@ -31,6 +31,7 @@ import {
 } from "./sanity";
 import type { SiteCopyDocument } from "./sanity";
 import siteCopyDefaults from "./site-copy.defaults.json";
+import siteCopyOptional from "./site-copy.optional.json";
 import type {
   Metric, Capability, Sector, ApproachStep, CaseStudy, Insight,
   ServiceDetail, SectorDetail, CaseStudyDetail, InsightDetail, SiteCopy,
@@ -69,21 +70,33 @@ export async function getInsights(): Promise<Insight[]> {
 // shipped with; scripts/seed.mjs seeds the Sanity document from the same file.
 const SITE_COPY_DEFAULTS: SiteCopy = siteCopyDefaults;
 
+// Optional fields (no `required` validation in the schema) — see site-copy.optional.json.
+const OPTIONAL_FIELDS = siteCopyOptional as unknown as Record<string, string[]>;
+
 /**
- * Fill every field of the shape: strings default to "", string arrays to [].
- * Used once the document exists, so an editor clearing a field gets an empty
- * value (e.g. no chips) rather than the old placeholder coming back.
+ * Fill every field of the shape once the document exists:
+ *  - OPTIONAL fields an editor cleared render empty (e.g. no chips), never the
+ *    old placeholder.
+ *  - REQUIRED fields can't be published empty, so a missing one means the
+ *    document predates that field: use the default so the site never blanks.
  */
 function normaliseSiteCopy(doc: SiteCopyDocument): SiteCopy {
   const out = {} as Record<string, Record<string, string | string[]>>;
   for (const [section, fields] of Object.entries(SITE_COPY_DEFAULTS)) {
     const stored = (doc[section as keyof SiteCopy] ?? {}) as Record<string, unknown>;
+    const optional = new Set(OPTIONAL_FIELDS[section] ?? []);
     out[section] = {};
     for (const [key, fallback] of Object.entries(fields as Record<string, unknown>)) {
       const v = stored[key];
-      out[section][key] = Array.isArray(fallback)
-        ? (Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : [])
-        : (typeof v === "string" ? v : "");
+      if (Array.isArray(fallback)) {
+        out[section][key] = Array.isArray(v)
+          ? v.filter((x): x is string => typeof x === "string")
+          : optional.has(key) ? [] : (fallback as string[]);
+      } else {
+        out[section][key] = typeof v === "string" && (v.trim() || optional.has(key))
+          ? v
+          : optional.has(key) ? "" : (fallback as string);
+      }
     }
   }
   return out as unknown as SiteCopy;

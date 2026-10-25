@@ -1,27 +1,32 @@
 // Public contact details shown on the site (footer + contact section).
-// Safe to expose — these are the published ways to reach the consultancy.
-// One source of truth: override via NEXT_PUBLIC_* env, else the placeholders.
+// The values are edited in Sanity ("Homepage / Site copy" → Contact) and come
+// from getSiteCopy(); this file only derives the links from them, so the footer
+// and the contact section always agree.
 //
 // NOTE: this is the *displayed* address. The inbox that enquiries are emailed to
 // lives in the server-only CONTACT_TO env var (see app/api/contact/route.ts).
+import type { ContactCopy } from "@/lib/content/types";
 
-export const CONTACT_EMAIL =
-  process.env.NEXT_PUBLIC_CONTACT_EMAIL || "hello@calibre-consulting.example";
+export interface ContactLinks {
+  email: string;
+  phoneDisplay: string;
+  mailto: string;
+  /** tel: link, E.164 (+ and digits). */
+  tel: string;
+  /** wa.me link (digits only); falls back to the phone number. */
+  whatsappUrl: string;
+}
 
-/** Human-formatted phone for display. */
-export const CONTACT_PHONE_DISPLAY =
-  process.env.NEXT_PUBLIC_CONTACT_PHONE || "+91 00000 00000";
+const digits = (s: string) => s.replace(/[^\d]/g, "");
 
-/** E.164 (with +) for tel: links. */
-export const CONTACT_PHONE_TEL =
-  process.env.NEXT_PUBLIC_CONTACT_PHONE_TEL ||
-  `+${CONTACT_PHONE_DISPLAY.replace(/[^\d]/g, "")}`;
-
-/** Digits only (no +) for wa.me links. */
-export const CONTACT_WHATSAPP =
-  process.env.NEXT_PUBLIC_CONTACT_WHATSAPP ||
-  CONTACT_PHONE_TEL.replace(/[^\d]/g, "");
-
-export const MAILTO = `mailto:${CONTACT_EMAIL}`;
-export const TEL = `tel:${CONTACT_PHONE_TEL}`;
-export const WHATSAPP_URL = `https://wa.me/${CONTACT_WHATSAPP}`;
+export function contactLinks(contact: Pick<ContactCopy, "email" | "phone" | "whatsapp">): ContactLinks {
+  const phoneTel = `+${digits(contact.phone)}`;
+  const whatsapp = digits(contact.whatsapp) || digits(phoneTel);
+  return {
+    email: contact.email,
+    phoneDisplay: contact.phone,
+    mailto: `mailto:${contact.email}`,
+    tel: `tel:${phoneTel}`,
+    whatsappUrl: `https://wa.me/${whatsapp}`,
+  };
+}

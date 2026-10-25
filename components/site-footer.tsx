@@ -1,13 +1,10 @@
 import Link from "next/link";
-import {
-  CONTACT_EMAIL,
-  CONTACT_PHONE_DISPLAY,
-  MAILTO,
-  TEL,
-  WHATSAPP_URL,
-} from "@/lib/contact";
+import { getSiteCopy } from "@/lib/content";
+import { contactLinks } from "@/lib/contact";
 
-export function SiteFooter() {
+export async function SiteFooter() {
+  const { contact } = await getSiteCopy();
+  const links = contactLinks(contact);
   return (
     <footer>
       <div className="wrap">
@@ -30,9 +27,9 @@ export function SiteFooter() {
           <div className="foot-col">
             <h4>Contact</h4>
             <Link href="/#contact">Start a project</Link>
-            <a href={MAILTO}>{CONTACT_EMAIL}</a>
-            <a href={TEL}>{CONTACT_PHONE_DISPLAY}</a>
-            <a href={WHATSAPP_URL} target="_blank" rel="noreferrer">WhatsApp</a>
+            <a href={links.mailto}>{links.email}</a>
+            <a href={links.tel}>{links.phoneDisplay}</a>
+            <a href={links.whatsappUrl} target="_blank" rel="noreferrer">WhatsApp</a>
           </div>
         </div>
         <div className="foot-bot">

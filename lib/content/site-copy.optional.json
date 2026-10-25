@@ -1,0 +1,18 @@
+{
+  "_comment": "Optional site-copy fields (no validation.required in sanity/schemaTypes/siteCopy.ts). Missing optional fields render empty; missing REQUIRED fields fall back to site-copy.defaults.json. Keep in sync with the schema.",
+  "hero": [
+    "highlightedWord",
+    "headlineEnd"
+  ],
+  "confidentiality": [
+    "secondParagraph"
+  ],
+  "about": [
+    "role",
+    "secondBio",
+    "standards"
+  ],
+  "contact": [
+    "whatsapp"
+  ]
+}

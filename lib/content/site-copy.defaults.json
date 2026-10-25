@@ -41,7 +41,14 @@
   "contact": {
     "kicker": "Start a conversation",
     "heading": "Tell us what's not working.",
-    "intro": "Describe the problem or the plant you have in mind. You'll hear back from the consultant directly — not a sales desk."
+    "intro": "Describe the problem or the plant you have in mind. You'll hear back from the consultant directly — not a sales desk.",
+    "emailLabel": "Email",
+    "email": "hello@calibre-consulting.example",
+    "phoneLabel": "Phone & WhatsApp",
+    "phone": "+91 00000 00000",
+    "whatsapp": "",
+    "basedInLabel": "Based in",
+    "basedIn": "India · working nationwide"
   },
   "about": {
     "kicker": "The consultant",
@@ -49,6 +56,12 @@
     "role": "Principal Consultant · Paint, Coating & Resin Technology",
     "leadBio": "Placeholder bio: three decades formulating and troubleshooting coatings across decorative, industrial and construction-chemical lines, and commissioning manufacturing plants from an empty floor to running production.",
     "secondBio": "The practice stays deliberately small and senior. When you engage Calibre, you work directly with the person doing the chemistry — not an account layer. Real names, credentials and history go here once the client is ready to share them.",
-    "standards": ["IS / BIS standards", "ASTM methods", "ISO 9001 QC systems", "VOC & eco-compliance", "Plant commissioning"]
+    "standards": [
+      "IS / BIS standards",
+      "ASTM methods",
+      "ISO 9001 QC systems",
+      "VOC & eco-compliance",
+      "Plant commissioning"
+    ]
   }
 }

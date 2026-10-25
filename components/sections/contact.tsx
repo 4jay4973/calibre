@@ -2,13 +2,8 @@
 import { useRef, useState } from "react";
 import Script from "next/script";
 import { Reveal } from "@/components/ui/reveal";
-import type { SectionHeadCopy } from "@/lib/content";
-import {
-  CONTACT_EMAIL,
-  CONTACT_PHONE_DISPLAY,
-  MAILTO,
-  TEL,
-} from "@/lib/contact";
+import type { ContactCopy } from "@/lib/content";
+import { contactLinks } from "@/lib/contact";
 
 // Turnstile is optional: with no site key we simply don't render the widget and
 // the server skips verification (dev). The secret key is server-only.
@@ -25,7 +20,8 @@ function turnstile(): TurnstileApi | undefined {
   return (window as unknown as { turnstile?: TurnstileApi }).turnstile;
 }
 
-export function Contact({ copy }: { copy: SectionHeadCopy }) {
+export function Contact({ copy }: { copy: ContactCopy }) {
+  const links = contactLinks(copy);
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -121,9 +117,9 @@ export function Contact({ copy }: { copy: SectionHeadCopy }) {
           <div className="kicker">{copy.kicker}</div>
           <h2 className="big">{copy.heading}</h2>
           <p className="lead">{copy.intro}</p>
-          <div className="cinfo"><div className="l">Email</div><a className="v link" href={MAILTO}>{CONTACT_EMAIL}</a></div>
-          <div className="cinfo"><div className="l">Phone &amp; WhatsApp</div><a className="v link" href={TEL}>{CONTACT_PHONE_DISPLAY}</a></div>
-          <div className="cinfo"><div className="l">Based in</div><div className="v">India · working nationwide</div></div>
+          <div className="cinfo"><div className="l">{copy.emailLabel}</div><a className="v link" href={links.mailto}>{links.email}</a></div>
+          <div className="cinfo"><div className="l">{copy.phoneLabel}</div><a className="v link" href={links.tel}>{links.phoneDisplay}</a></div>
+          <div className="cinfo"><div className="l">{copy.basedInLabel}</div><div className="v">{copy.basedIn}</div></div>
         </Reveal>
         <Reveal as="div">
           <form onSubmit={onSubmit} noValidate>
