@@ -106,6 +106,25 @@ npm run seed -- --site-copy-only
 
 If your Sanity webhook has a filter listing document types, add `siteCopy` to it.
 
+The **Contact** group in that document also holds the public email, phone,
+WhatsApp number and location shown in the contact section and the footer.
+
+### Enquiries (contact form)
+
+Form submissions go to `/api/contact`, which:
+
+1. emails the consultant via **Resend** — set `RESEND_API_KEY`, `CONTACT_TO`
+   and `CONTACT_FROM` (needs a domain verified in Resend), and
+2. saves the enquiry in the Studio under **Enquiries** — set
+   `SANITY_API_WRITE_TOKEN` (an Editor token, server-only).
+
+Either one is enough to receive enquiries; both is recommended. In production
+the visitor only sees "sent" if at least one succeeded. Enquiry documents use
+ids like `enquiries.<uuid>`, which a public dataset does not serve to
+unauthenticated requests — they're visible only when signed in to the Studio.
+Use the **Status** (New / Replied / Closed) and **Internal notes** fields to
+track follow-up.
+
 ### First-time setup
 
 1. **Create a Sanity project** at [sanity.io/manage](https://www.sanity.io/manage)

@@ -1,15 +1,18 @@
 import { NextResponse } from "next/server";
+import { isEnquiryStorageConfigured, saveEnquiry } from "@/lib/enquiries";
 
 // Contact enquiry endpoint.
 // ---------------------------------------------------------------------------
-// Flow: honeypot -> Turnstile -> validate -> send via Resend.
-// Confidential: the message body is only ever sent to the consultant's inbox
-// via Resend. We never log enquiry contents anywhere.
+// Flow: honeypot -> Turnstile -> validate -> email via Resend -> save to Sanity.
+// Confidential: enquiries go only to the consultant's inbox (Resend) and to the
+// private "Enquiries" list in the Studio (lib/enquiries.ts). We never log
+// enquiry contents anywhere.
 //
-// Graceful degradation for dev:
-//   - No Turnstile secret  -> skip the human check (honeypot still enforced).
-//   - No Resend/CONTACT_*  -> validate + accept, but report delivered:false so
-//                             the developer knows email isn't wired yet.
+// Delivery: the visitor sees success only if the enquiry was emailed OR saved.
+//   - Neither channel configured -> production: 503 (never drop an enquiry
+//     while telling the visitor it was sent); dev: accept with delivered:false.
+//   - Both configured but both failed -> 502, visitor is asked to email instead.
+// Turnstile: no secret set -> human check skipped (honeypot still enforced).
 // ---------------------------------------------------------------------------
 
 export const runtime = "nodejs";
@@ -69,38 +72,46 @@ async function sendEmail(fields: {
   if (!apiKey || !to || !from) {
     return { delivered: false, reason: "email-not-configured" };
   }
+  try {
+    const lines = [
+      `Name:    ${fields.name}`,
+      `Email:   ${fields.email}`,
+      fields.company ? `Company: ${fields.company}` : null,
+      fields.phone ? `Phone:   ${fields.phone}` : null,
+      `Type:    ${fields.projectType}`,
+      "",
+      fields.message,
+    ].filter(Boolean);
 
-  const lines = [
-    `Name:    ${fields.name}`,
-    `Email:   ${fields.email}`,
-    fields.company ? `Company: ${fields.company}` : null,
-    fields.phone ? `Phone:   ${fields.phone}` : null,
-    `Type:    ${fields.projectType}`,
-    "",
-    fields.message,
-  ].filter(Boolean);
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from,
+        to: [to],
+        reply_to: fields.email, // consultant can reply straight to the enquirer
+        subject: `New enquiry — ${fields.projectType} — ${fields.name}`,
+        text: lines.join("\n"),
+      }),
+    });
 
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from,
-      to: [to],
-      reply_to: fields.email, // consultant can reply straight to the enquirer
-      subject: `New enquiry — ${fields.projectType} — ${fields.name}`,
-      text: lines.join("\n"),
-    }),
-  });
-
-  if (!res.ok) {
-    // Surface the failure without logging enquiry contents.
-    return { delivered: false, reason: `resend-${res.status}` };
+    if (!res.ok) {
+      // Surface the failure without logging enquiry contents.
+      console.error("Enquiry email failed: resend", res.status);
+      return { delivered: false, reason: `resend-${res.status}` };
+    }
+    return { delivered: true };
+  } catch {
+    console.error("Enquiry email failed: network");
+    return { delivered: false, reason: "resend-network" };
   }
-  return { delivered: true };
 }
+
+const isEmailConfigured = () =>
+  !!(process.env.RESEND_API_KEY && process.env.CONTACT_TO && process.env.CONTACT_FROM);
 
 export async function POST(request: Request) {
   let body: Payload;
@@ -150,24 +161,29 @@ export async function POST(request: Request) {
     );
   }
 
-  // 4) Send.
-  const { delivered, reason } = await sendEmail({
-    name,
-    company,
-    email,
-    phone,
-    projectType,
-    message,
-  });
+  const fields = { name, company, email, phone, projectType, message };
 
-  if (!delivered && reason && reason.startsWith("resend-")) {
-    // Real delivery failure (keys present but send failed).
+  // 4) Nowhere to deliver it: never report success for an enquiry we'd drop.
+  if (!isEmailConfigured() && !isEnquiryStorageConfigured) {
+    if (process.env.NODE_ENV === "production") {
+      console.error("Enquiry rejected: neither email nor storage is configured");
+      return NextResponse.json(
+        { ok: false, error: "Couldn't send right now. Please email us directly." },
+        { status: 503 },
+      );
+    }
+    return NextResponse.json({ ok: true, delivered: false, saved: false }); // dev only
+  }
+
+  // 5) Email the consultant, then save to the Studio (recording whether the email went out).
+  const { delivered } = await sendEmail(fields);
+  const saved = await saveEnquiry({ ...fields, emailDelivered: delivered });
+
+  if (!delivered && !saved) {
     return NextResponse.json(
       { ok: false, error: "Couldn't send right now. Please email us directly." },
       { status: 502 },
     );
   }
-
-  // delivered, or email-not-configured (dev): accept the enquiry.
-  return NextResponse.json({ ok: true, delivered });
+  return NextResponse.json({ ok: true, delivered, saved });
 }

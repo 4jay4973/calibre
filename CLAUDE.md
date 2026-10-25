@@ -58,7 +58,17 @@ must not change as a result.
   fallback until the document exists). The hero headline is three fields
   (`headlineStart` / `highlightedWord` / `headlineEnd`); the component adds the
   spaces and the `.q` accent. Seed it alone with `npm run seed -- --site-copy-only`
-  (createIfNotExists — never overwrites edits).
+  (creates it if missing; otherwise only fills missing REQUIRED fields).
+  Optional fields are listed in `lib/content/site-copy.optional.json`; missing
+  required fields fall back to the defaults so the site never renders blank.
+- Contact section details (labels, email, phone, WhatsApp, location) are in the
+  same singleton (Contact group); `lib/contact.ts` derives mailto/tel/wa.me links.
+  The footer reads the same values.
+- Contact form: `/api/contact` emails via Resend (when RESEND_API_KEY,
+  CONTACT_TO, CONTACT_FROM are set) and saves an `enquiry` document via
+  `lib/enquiries.ts` (when SANITY_API_WRITE_TOKEN is set). Enquiry ids are
+  `enquiries.<uuid>` — the dot keeps them out of public (unauthenticated) reads.
+  Success is reported only if emailed OR saved.
 
 ## Still to build (typical upcoming tasks)
 - Sanity: draft/preview mode (perspective + draft-aware getters), production CDN

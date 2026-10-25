@@ -14,6 +14,8 @@ import { schemaTypes } from "./sanity/schemaTypes";
 const SINGLETONS = [{ type: "siteCopy", id: "siteCopy", title: "Homepage / Site copy" }];
 const singletonTypes = new Set(SINGLETONS.map((s) => s.type));
 const singletonActions = new Set(["publish", "discardChanges", "restore"]);
+// Enquiries arrive from the website form only: no "create new", no duplicate.
+const formOnlyTypes = new Set(["enquiry"]);
 
 export default defineConfig({
   name: "calibre",
@@ -24,14 +26,19 @@ export default defineConfig({
   schema: {
     types: schemaTypes,
     // No "create new" template for singleton types.
-    templates: (templates) => templates.filter(({ schemaType }) => !singletonTypes.has(schemaType)),
+    templates: (templates) =>
+      templates.filter(
+        ({ schemaType }) => !singletonTypes.has(schemaType) && !formOnlyTypes.has(schemaType),
+      ),
   },
   document: {
     // Singletons can be edited and published, but not duplicated or deleted.
     actions: (input, context) =>
       singletonTypes.has(context.schemaType)
         ? input.filter(({ action }) => action && singletonActions.has(action))
-        : input,
+        : formOnlyTypes.has(context.schemaType)
+          ? input.filter(({ action }) => action !== "duplicate")
+          : input,
   },
   plugins: [
     structureTool({
@@ -45,10 +52,20 @@ export default defineConfig({
                 .id(s.id)
                 .child(S.document().schemaType(s.type).documentId(s.id).title(s.title)),
             ),
+            S.listItem()
+              .title("Enquiries")
+              .id("enquiry")
+              .schemaType("enquiry")
+              .child(
+                S.documentTypeList("enquiry")
+                  .title("Enquiries")
+                  .defaultOrdering([{ field: "submittedAt", direction: "desc" }]),
+              ),
             S.divider(),
-            ...S.documentTypeListItems().filter(
-              (item) => !singletonTypes.has(item.getId() ?? ""),
-            ),
+            ...S.documentTypeListItems().filter((item) => {
+              const id = item.getId() ?? "";
+              return !singletonTypes.has(id) && !formOnlyTypes.has(id);
+            }),
           ]),
     }),
     visionTool({ defaultApiVersion: apiVersion }),

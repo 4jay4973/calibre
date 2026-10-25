@@ -9,14 +9,16 @@
 // transaction (referrers and referees are committed together).
 //
 // The "Homepage / Site copy" singleton (_id "siteCopy") is different: it is
-// created with createIfNotExists from lib/content/site-copy.defaults.json, so
-// re-running the seed never overwrites copy the client has edited in /studio.
+// created from lib/content/site-copy.defaults.json only if it doesn't exist.
+// If it exists, only REQUIRED fields that are missing (e.g. added by a newer
+// schema) are filled in — edited copy and cleared optional fields are left
+// exactly as they are.
 //
 // Usage:
 //   1. Set NEXT_PUBLIC_SANITY_PROJECT_ID / NEXT_PUBLIC_SANITY_DATASET and a
 //      write-enabled SANITY_API_TOKEN (in .env.local or the shell).
 //   2. npm run seed
-//      npm run seed -- --site-copy-only   # only create the site-copy singleton
+//      npm run seed -- --site-copy-only   # only the site-copy singleton
 //                                         # (leaves every other document alone)
 //
 // The npm script loads .env.local via `node --env-file`. To pass env another
@@ -266,13 +268,24 @@ const docs = [
 
 // --- Site copy singleton -----------------------------------------------------
 // Same file the app falls back to, so seeded copy == the copy the site shipped with.
-const siteCopy = {
-  _id: "siteCopy",
-  _type: "siteCopy",
-  ...JSON.parse(
-    readFileSync(new URL("../lib/content/site-copy.defaults.json", import.meta.url), "utf8"),
-  ),
-};
+const readJson = (rel) => JSON.parse(readFileSync(new URL(rel, import.meta.url), "utf8"));
+const siteCopyDefaults = readJson("../lib/content/site-copy.defaults.json");
+const siteCopyOptional = readJson("../lib/content/site-copy.optional.json");
+const siteCopy = { _id: "siteCopy", _type: "siteCopy", ...siteCopyDefaults };
+
+/** Required fields missing from an existing document -> { "section.key": default }. */
+function missingRequiredFields(existing) {
+  const missing = {};
+  for (const [section, fields] of Object.entries(siteCopyDefaults)) {
+    const optional = new Set(siteCopyOptional[section] ?? []);
+    for (const [key, value] of Object.entries(fields)) {
+      if (optional.has(key)) continue;
+      const current = existing[section]?.[key];
+      if (current === undefined || current === null) missing[`${section}.${key}`] = value;
+    }
+  }
+  return missing;
+}
 
 async function run() {
   if (!siteCopyOnly) {
@@ -283,12 +296,27 @@ async function run() {
   }
   // createIfNotExists: idempotent and never clobbers client edits.
   const existing = await client.getDocument(siteCopy._id);
-  if (existing) {
-    console.log("• Site copy already exists — left unchanged.");
-  } else {
+  if (!existing) {
     await client.createIfNotExists(siteCopy);
     console.log(`✔ Created the "Homepage / Site copy" document.`);
+    return;
   }
+  const missing = missingRequiredFields(existing);
+  const paths = Object.keys(missing);
+  if (!paths.length) {
+    console.log("• Site copy already exists and is complete — left unchanged.");
+    return;
+  }
+  // Parent objects first, then the missing fields (setIfMissing never overwrites).
+  const parents = Object.fromEntries(
+    [...new Set(paths.map((p) => p.split(".")[0]))].map((s) => [s, {}]),
+  );
+  await client
+    .transaction()
+    .patch(siteCopy._id, (p) => p.setIfMissing(parents))
+    .patch(siteCopy._id, (p) => p.setIfMissing(missing))
+    .commit();
+  console.log(`✔ Site copy: added ${paths.length} missing field(s): ${paths.join(", ")}`);
 }
 
 run().catch((err) => {
