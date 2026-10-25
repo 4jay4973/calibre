@@ -30,6 +30,7 @@ import type {
   Sector,
   SectorDetail,
   ServiceDetail,
+  SiteCopy,
 } from "./types";
 
 export const sanityClient = createClient({
@@ -56,6 +57,7 @@ export const CONTENT_TYPES = [
   "approachStep",
   "caseStudy",
   "insight",
+  "siteCopy", // singleton settings document
 ] as const;
 export type ContentType = (typeof CONTENT_TYPES)[number];
 
@@ -159,6 +161,28 @@ export const fetchCaseStudies = () =>
 
 export const fetchInsights = () =>
   sanityFetch<Insight[]>(insightsQuery, [], [SANITY_TAG, "insight"]);
+
+// --- Site copy (singleton settings document) --------------------------------
+// One document with the fixed _id "siteCopy". Returns null when it doesn't
+// exist yet (or Sanity isn't configured); the getter handles the fallback.
+export const siteCopyQuery = /* groq */ `
+  *[_type == "siteCopy" && _id == "siteCopy"][0]{
+    hero,
+    capabilities,
+    sectors,
+    approach,
+    cases,
+    confidentiality,
+    insights,
+    contact,
+    about
+  }`;
+
+/** Raw document as stored — any field may be missing; normalised in the getter. */
+export type SiteCopyDocument = { [K in keyof SiteCopy]?: Partial<SiteCopy[K]> | null };
+
+export const fetchSiteCopy = () =>
+  sanityFetch<SiteCopyDocument | null>(siteCopyQuery, null, [SANITY_TAG, "siteCopy"]);
 
 // --- Detail (by-slug) queries -----------------------------------------------
 // Each resolves its cross-link references in the same query so a detail page

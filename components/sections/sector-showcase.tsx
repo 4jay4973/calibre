@@ -1,6 +1,6 @@
 "use client";
 import { useRef, useState } from "react";
-import type { Sector, SwatchKind } from "@/lib/content";
+import type { Sector, SectionHeadCopy, SwatchKind } from "@/lib/content";
 
 /** The finish texture rendered inside each swatch, keyed by coating market. */
 function SwatchTexture({ kind }: { kind: SwatchKind }) {
@@ -43,7 +43,7 @@ const swatchClass: Record<SwatchKind, string> = {
   arch: "sw-arch", ind: "sw-ind", wood: "sw-wood", auto: "sw-auto", const: "sw-const",
 };
 
-export function SectorShowcase({ sectors }: { sectors: Sector[] }) {
+export function SectorShowcase({ sectors, copy }: { sectors: Sector[]; copy: SectionHeadCopy }) {
   const [active, setActive] = useState(0);
   const rowsRef = useRef<(HTMLButtonElement | null)[]>([]);
   const fine =
@@ -69,9 +69,9 @@ export function SectorShowcase({ sectors }: { sectors: Sector[] }) {
     <section id="sectors" className="sectors">
       <div className="wrap">
         <div className="sec-head">
-          <div className="kicker">Who we work with</div>
-          <h2 className="big">Manufacturers across five coating markets.</h2>
-          <p>Each market carries its own chemistry, finish and failure modes. Choose the one that&apos;s yours.</p>
+          <div className="kicker">{copy.kicker}</div>
+          <h2 className="big">{copy.heading}</h2>
+          <p>{copy.intro}</p>
         </div>
 
         <div className="showcase">

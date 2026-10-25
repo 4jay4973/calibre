@@ -11,6 +11,7 @@
 // Until a real Sanity project is configured, the fetchers return empty arrays
 // so `next build` succeeds without credentials (see sanity/env.ts and README).
 // ---------------------------------------------------------------------------
+import { cache } from "react";
 import {
   fetchApproach,
   fetchCapabilities,
@@ -26,10 +27,13 @@ import {
   fetchSectors,
   fetchServiceBySlug,
   fetchServiceSlugs,
+  fetchSiteCopy,
 } from "./sanity";
+import type { SiteCopyDocument } from "./sanity";
+import siteCopyDefaults from "./site-copy.defaults.json";
 import type {
   Metric, Capability, Sector, ApproachStep, CaseStudy, Insight,
-  ServiceDetail, SectorDetail, CaseStudyDetail, InsightDetail,
+  ServiceDetail, SectorDetail, CaseStudyDetail, InsightDetail, SiteCopy,
 } from "./types";
 
 // --- Homepage getters (unchanged signatures + return types) -----------------
@@ -59,6 +63,43 @@ export async function getInsights(): Promise<Insight[]> {
     n.slug ? { ...n, href: `/insights/${n.slug}` } : n,
   );
 }
+
+// --- Site copy (singleton settings document) --------------------------------
+// The default copy (site-copy.defaults.json) is the exact text the homepage
+// shipped with; scripts/seed.mjs seeds the Sanity document from the same file.
+const SITE_COPY_DEFAULTS: SiteCopy = siteCopyDefaults;
+
+/**
+ * Fill every field of the shape: strings default to "", string arrays to [].
+ * Used once the document exists, so an editor clearing a field gets an empty
+ * value (e.g. no chips) rather than the old placeholder coming back.
+ */
+function normaliseSiteCopy(doc: SiteCopyDocument): SiteCopy {
+  const out = {} as Record<string, Record<string, string | string[]>>;
+  for (const [section, fields] of Object.entries(SITE_COPY_DEFAULTS)) {
+    const stored = (doc[section as keyof SiteCopy] ?? {}) as Record<string, unknown>;
+    out[section] = {};
+    for (const [key, fallback] of Object.entries(fields as Record<string, unknown>)) {
+      const v = stored[key];
+      out[section][key] = Array.isArray(fallback)
+        ? (Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : [])
+        : (typeof v === "string" ? v : "");
+    }
+  }
+  return out as unknown as SiteCopy;
+}
+
+/**
+ * Homepage hero + section-heading copy and the About section.
+ * Until the singleton exists in Sanity (not seeded yet, or Sanity not
+ * configured) this returns the default copy, so the homepage never renders
+ * blank. Wrapped in React `cache` so the sections that call it share one fetch
+ * per request.
+ */
+export const getSiteCopy = cache(async (): Promise<SiteCopy> => {
+  const doc = await fetchSiteCopy();
+  return doc ? normaliseSiteCopy(doc) : SITE_COPY_DEFAULTS;
+});
 
 // --- Detail getters (for the internal page templates) -----------------------
 // Each resolves cross-link references, so a page gets its related items in one

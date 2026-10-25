@@ -10,10 +10,10 @@ import { Confidentiality } from "@/components/sections/confidentiality";
 import { About } from "@/components/sections/about";
 import { Insights } from "@/components/sections/insights";
 import { Contact } from "@/components/sections/contact";
-import { getSectors } from "@/lib/content";
+import { getSectors, getSiteCopy } from "@/lib/content";
 
 export default async function Home() {
-  const sectors = await getSectors();
+  const [sectors, copy] = await Promise.all([getSectors(), getSiteCopy()]);
   return (
     <>
       <SiteHeader />
@@ -21,13 +21,13 @@ export default async function Home() {
         <Hero />
         <Metrics />
         <Capabilities />
-        <SectorShowcase sectors={sectors} />
+        <SectorShowcase sectors={sectors} copy={copy.sectors} />
         <Approach />
         <Cases />
         <Confidentiality />
         <About />
         <Insights />
-        <Contact />
+        <Contact copy={copy.contact} />
       </main>
       <SiteFooter />
     </>

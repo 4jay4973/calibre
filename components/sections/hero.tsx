@@ -1,16 +1,30 @@
-export function Hero() {
+import { getSiteCopy } from "@/lib/content";
+
+// The headline is composed from three plain-text fields so the accent styling
+// can't be broken by editing: the highlighted word always gets `.q`. Spaces
+// between the parts are added here (none before closing punctuation).
+const gapBefore = (text: string) => (/^[,.;:!?)]/.test(text) ? "" : " ");
+
+export async function Hero() {
+  const { hero } = await getSiteCopy();
+  const word = hero.highlightedWord.trim();
+  const start = hero.headlineStart.trim();
+  const end = hero.headlineEnd.trim();
+  const before = start && word ? `${start} ` : start;
+  const after = end && (start || word) ? `${gapBefore(end)}${end}` : end;
   return (
     <section className="hero">
       <div className="wrap hero-grid">
         <div>
-          <span className="eyebrow">Paint · Coating · Resin technical consultancy</span>
-          <h1>
-            The formulation problems that quietly cost you <span className="q">margin</span> — measured and solved.
-          </h1>
-          <p className="hero-lead">
-            We help paint and coating manufacturers develop better formulations, fix failing
-            ones, and turn lab work into production your team can repeat.
-          </p>
+          <span className="eyebrow">{hero.eyebrow}</span>
+          {word ? (
+            <h1>
+              {before}<span className="q">{word}</span>{after}
+            </h1>
+          ) : (
+            <h1>{before + after}</h1>
+          )}
+          <p className="hero-lead">{hero.lead}</p>
           <div className="hero-actions">
             <a href="#contact" className="btn btn-primary">Discuss a project</a>
             <a href="#approach" className="btn btn-ghost">See how we work</a>
@@ -19,7 +33,7 @@ export function Hero() {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" strokeWidth="1.8">
               <path d="M12 2 4 6v6c0 5 3.4 8 8 10 4.6-2 8-5 8-10V6l-8-4Z" />
             </svg>
-            Every engagement runs under NDA. Your formulations and process data stay yours.
+            {hero.ndaNote}
           </p>
         </div>
         <div className="hero-fig-wrap">

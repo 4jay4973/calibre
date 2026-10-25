@@ -10,6 +10,8 @@ import { SANITY_TAG, CONTENT_TYPES } from "@/lib/content/sanity";
 // 2. Map the changed document's _type to its cache tag and revalidateTag() it,
 //    so only that type's pages (and cross-linked pages tagged with it) refresh.
 //    Unknown/absent _type falls back to the broad SANITY_TAG (refresh all).
+//    CONTENT_TYPES includes the "siteCopy" singleton, so publishing the
+//    Homepage / Site copy document revalidates the "siteCopy" tag (homepage).
 //
 // This is on top of the time-based ISR window in lib/content/sanity.ts, which
 // stays as the fallback if the webhook is ever missed.

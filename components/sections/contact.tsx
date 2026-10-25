@@ -2,6 +2,7 @@
 import { useRef, useState } from "react";
 import Script from "next/script";
 import { Reveal } from "@/components/ui/reveal";
+import type { SectionHeadCopy } from "@/lib/content";
 import {
   CONTACT_EMAIL,
   CONTACT_PHONE_DISPLAY,
@@ -24,7 +25,7 @@ function turnstile(): TurnstileApi | undefined {
   return (window as unknown as { turnstile?: TurnstileApi }).turnstile;
 }
 
-export function Contact() {
+export function Contact({ copy }: { copy: SectionHeadCopy }) {
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -117,9 +118,9 @@ export function Contact() {
       ) : null}
       <div className="wrap contact-grid">
         <Reveal>
-          <div className="kicker">Start a conversation</div>
-          <h2 className="big">Tell us what&apos;s not working.</h2>
-          <p className="lead">Describe the problem or the plant you have in mind. You&apos;ll hear back from the consultant directly — not a sales desk.</p>
+          <div className="kicker">{copy.kicker}</div>
+          <h2 className="big">{copy.heading}</h2>
+          <p className="lead">{copy.intro}</p>
           <div className="cinfo"><div className="l">Email</div><a className="v link" href={MAILTO}>{CONTACT_EMAIL}</a></div>
           <div className="cinfo"><div className="l">Phone &amp; WhatsApp</div><a className="v link" href={TEL}>{CONTACT_PHONE_DISPLAY}</a></div>
           <div className="cinfo"><div className="l">Based in</div><div className="v">India · working nationwide</div></div>

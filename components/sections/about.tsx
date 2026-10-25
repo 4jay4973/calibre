@@ -1,8 +1,8 @@
+import { getSiteCopy } from "@/lib/content";
 import { Reveal } from "@/components/ui/reveal";
 
-const standards = ["IS / BIS standards", "ASTM methods", "ISO 9001 QC systems", "VOC & eco-compliance", "Plant commissioning"];
-
-export function About() {
+export async function About() {
+  const { about: copy } = await getSiteCopy();
   return (
     <section id="about" className="about">
       <div className="wrap about-grid">
@@ -13,13 +13,13 @@ export function About() {
           <span className="ph-label">Placeholder — lead consultant portrait</span>
         </Reveal>
         <Reveal className="about">
-          <div className="kicker">The consultant</div>
-          <h2 className="big">Led by a working paint technologist.</h2>
-          <div className="role">Principal Consultant · Paint, Coating &amp; Resin Technology</div>
-          <p className="serif">Placeholder bio: three decades formulating and troubleshooting coatings across decorative, industrial and construction-chemical lines, and commissioning manufacturing plants from an empty floor to running production.</p>
-          <p>The practice stays deliberately small and senior. When you engage Calibre, you work directly with the person doing the chemistry — not an account layer. Real names, credentials and history go here once the client is ready to share them.</p>
+          <div className="kicker">{copy.kicker}</div>
+          <h2 className="big">{copy.heading}</h2>
+          <div className="role">{copy.role}</div>
+          <p className="serif">{copy.leadBio}</p>
+          <p>{copy.secondBio}</p>
           <div className="standards">
-            {standards.map((s) => (<span className="chip" key={s}>{s}</span>))}
+            {copy.standards.map((s, i) => (<span className="chip" key={`${i}-${s}`}>{s}</span>))}
           </div>
         </Reveal>
       </div>

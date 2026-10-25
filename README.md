@@ -87,6 +87,25 @@ The document schemas in `sanity/schemaTypes/` mirror `types.ts` one-to-one
 (Sector, CaseStudy, Capability, Insight, Metric, ApproachStep), including the
 `SwatchKind` / `IconKey` union options, plus an `order` field for display order.
 
+### Homepage / Site copy (singleton)
+
+The hero, every homepage section header (kicker, heading, intro) and the whole
+About section are edited in one settings document, pinned at the top of the
+Studio as **Homepage / Site copy**. All fields are plain text; layout and styling
+stay in code. The hero headline is split into *text before*, *highlighted word*
+(rendered in the accent colour) and *text after*, so editing can't break the
+styling. Until that document exists, the site renders the defaults in
+`lib/content/site-copy.defaults.json`.
+
+To create it without touching any other content (safe to re-run; it never
+overwrites edits):
+
+```bash
+npm run seed -- --site-copy-only
+```
+
+If your Sanity webhook has a filter listing document types, add `siteCopy` to it.
+
 ### First-time setup
 
 1. **Create a Sanity project** at [sanity.io/manage](https://www.sanity.io/manage)

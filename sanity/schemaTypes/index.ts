@@ -6,6 +6,7 @@ import { sector } from "./sector";
 import { approachStep } from "./approachStep";
 import { caseStudy } from "./caseStudy";
 import { insight } from "./insight";
+import { siteCopy } from "./siteCopy";
 
 // Registry of every document type. These map 1:1 to lib/content/types.ts.
 export const schemaTypes: SchemaTypeDefinition[] = [
@@ -15,4 +16,5 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   approachStep,
   caseStudy,
   insight,
+  siteCopy, // singleton settings document (see sanity.config.ts)
 ];

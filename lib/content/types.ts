@@ -73,6 +73,56 @@ export interface Insight {
   readMinutes?: number;
 }
 
+// ---------------------------------------------------------------------------
+// Site copy — the singleton "Homepage / Site copy" settings document
+// (sanity/schemaTypes/siteCopy.ts). All plain text. The getter always returns
+// every field (missing strings -> "", missing chips -> []).
+// ---------------------------------------------------------------------------
+
+/** Kicker + heading + intro: the standard homepage section header. */
+export interface SectionHeadCopy {
+  kicker: string;
+  heading: string;
+  intro: string;
+}
+
+export interface HeroCopy {
+  eyebrow: string;
+  /** Headline text before the highlighted word. */
+  headlineStart: string;
+  /** Rendered in the accent style (`.q`). Empty = no highlight. */
+  highlightedWord: string;
+  /** Headline text after the highlighted word. */
+  headlineEnd: string;
+  lead: string;
+  ndaNote: string;
+}
+
+export interface ConfidentialityCopy extends SectionHeadCopy {
+  secondParagraph: string;
+}
+
+export interface AboutCopy {
+  kicker: string;
+  heading: string;
+  role: string;
+  leadBio: string;
+  secondBio: string;
+  standards: string[];
+}
+
+export interface SiteCopy {
+  hero: HeroCopy;
+  capabilities: SectionHeadCopy;
+  sectors: SectionHeadCopy;
+  approach: SectionHeadCopy;
+  cases: SectionHeadCopy;
+  confidentiality: ConfidentialityCopy;
+  insights: SectionHeadCopy;
+  contact: SectionHeadCopy;
+  about: AboutCopy;
+}
+
 export interface SiteContent {
   metrics: Metric[];
   capabilities: Capability[];

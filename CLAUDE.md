@@ -51,6 +51,14 @@ must not change as a result.
   (`lib/content/sanity.ts`), embedded Studio at `/studio`, schemas in
   `sanity/schemaTypes/`. `data.ts` is gone; seed the placeholder content with
   `npm run seed`. Dev reads are uncached; production uses ISR (`revalidate`).
+- Homepage hero, section headers (kicker/heading/intro) and the whole About
+  section come from the **"Homepage / Site copy" singleton** (`siteCopy`, fixed
+  `_id: "siteCopy"`, schema `sanity/schemaTypes/siteCopy.ts`) via `getSiteCopy()`.
+  Defaults = `lib/content/site-copy.defaults.json` (used by the seed, and as the
+  fallback until the document exists). The hero headline is three fields
+  (`headlineStart` / `highlightedWord` / `headlineEnd`); the component adds the
+  spaces and the `.q` accent. Seed it alone with `npm run seed -- --site-copy-only`
+  (createIfNotExists — never overwrites edits).
 
 ## Still to build (typical upcoming tasks)
 - Sanity: draft/preview mode (perspective + draft-aware getters), production CDN

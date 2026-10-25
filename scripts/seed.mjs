@@ -8,15 +8,24 @@
 // re-running just overwrites them. References resolve within the single
 // transaction (referrers and referees are committed together).
 //
+// The "Homepage / Site copy" singleton (_id "siteCopy") is different: it is
+// created with createIfNotExists from lib/content/site-copy.defaults.json, so
+// re-running the seed never overwrites copy the client has edited in /studio.
+//
 // Usage:
 //   1. Set NEXT_PUBLIC_SANITY_PROJECT_ID / NEXT_PUBLIC_SANITY_DATASET and a
 //      write-enabled SANITY_API_TOKEN (in .env.local or the shell).
 //   2. npm run seed
+//      npm run seed -- --site-copy-only   # only create the site-copy singleton
+//                                         # (leaves every other document alone)
 //
 // The npm script loads .env.local via `node --env-file`. To pass env another
 // way, just run `node scripts/seed.mjs` with the variables exported.
 // ---------------------------------------------------------------------------
+import { readFileSync } from "node:fs";
 import { createClient } from "@sanity/client";
+
+const siteCopyOnly = process.argv.includes("--site-copy-only");
 
 const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
 const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || "production";
@@ -255,11 +264,31 @@ const docs = [
   })),
 ];
 
+// --- Site copy singleton -----------------------------------------------------
+// Same file the app falls back to, so seeded copy == the copy the site shipped with.
+const siteCopy = {
+  _id: "siteCopy",
+  _type: "siteCopy",
+  ...JSON.parse(
+    readFileSync(new URL("../lib/content/site-copy.defaults.json", import.meta.url), "utf8"),
+  ),
+};
+
 async function run() {
-  const tx = client.transaction();
-  for (const doc of docs) tx.createOrReplace(doc);
-  await tx.commit();
-  console.log(`✔ Seeded ${docs.length} documents into ${projectId}/${dataset}.`);
+  if (!siteCopyOnly) {
+    const tx = client.transaction();
+    for (const doc of docs) tx.createOrReplace(doc);
+    await tx.commit();
+    console.log(`✔ Seeded ${docs.length} documents into ${projectId}/${dataset}.`);
+  }
+  // createIfNotExists: idempotent and never clobbers client edits.
+  const existing = await client.getDocument(siteCopy._id);
+  if (existing) {
+    console.log("• Site copy already exists — left unchanged.");
+  } else {
+    await client.createIfNotExists(siteCopy);
+    console.log(`✔ Created the "Homepage / Site copy" document.`);
+  }
 }
 
 run().catch((err) => {

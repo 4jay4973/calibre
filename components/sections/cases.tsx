@@ -1,15 +1,15 @@
-import { getCaseStudies } from "@/lib/content";
+import { getCaseStudies, getSiteCopy } from "@/lib/content";
 import { Reveal } from "@/components/ui/reveal";
 
 export async function Cases() {
-  const cases = await getCaseStudies();
+  const [cases, { cases: copy }] = await Promise.all([getCaseStudies(), getSiteCopy()]);
   return (
     <section id="cases" className="cases">
       <div className="wrap">
         <Reveal className="sec-head">
-          <div className="kicker">Selected work</div>
-          <h2 className="big">Real engagements, client details withheld.</h2>
-          <p>We work under confidentiality, so these are described without naming the manufacturer. The numbers are not.</p>
+          <div className="kicker">{copy.kicker}</div>
+          <h2 className="big">{copy.heading}</h2>
+          <p>{copy.intro}</p>
         </Reveal>
         <Reveal className="case-grid">
           {cases.map((c, i) => (

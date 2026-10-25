@@ -1,4 +1,4 @@
-import { getCapabilities } from "@/lib/content";
+import { getCapabilities, getSiteCopy } from "@/lib/content";
 import type { IconKey } from "@/lib/content";
 import { Reveal } from "@/components/ui/reveal";
 import type { ReactNode } from "react";
@@ -15,14 +15,14 @@ const icons: Record<IconKey, ReactNode> = {
 };
 
 export async function Capabilities() {
-  const caps = await getCapabilities();
+  const [caps, { capabilities: copy }] = await Promise.all([getCapabilities(), getSiteCopy()]);
   return (
     <section id="capabilities">
       <div className="wrap">
         <Reveal className="sec-head">
-          <div className="kicker">What we do</div>
-          <h2 className="big">Deep technical help across the whole production line.</h2>
-          <p>From a single failing batch to a new plant built from nothing — we work at the level of chemistry, process and quality control, not slogans.</p>
+          <div className="kicker">{copy.kicker}</div>
+          <h2 className="big">{copy.heading}</h2>
+          <p>{copy.intro}</p>
         </Reveal>
         <Reveal className="cap-grid">
           {caps.map((c, i) => (

@@ -1,0 +1,54 @@
+{
+  "hero": {
+    "eyebrow": "Paint · Coating · Resin technical consultancy",
+    "headlineStart": "The formulation problems that quietly cost you",
+    "highlightedWord": "margin",
+    "headlineEnd": "— measured and solved.",
+    "lead": "We help paint and coating manufacturers develop better formulations, fix failing ones, and turn lab work into production your team can repeat.",
+    "ndaNote": "Every engagement runs under NDA. Your formulations and process data stay yours."
+  },
+  "capabilities": {
+    "kicker": "What we do",
+    "heading": "Deep technical help across the whole production line.",
+    "intro": "From a single failing batch to a new plant built from nothing — we work at the level of chemistry, process and quality control, not slogans."
+  },
+  "sectors": {
+    "kicker": "Who we work with",
+    "heading": "Manufacturers across five coating markets.",
+    "intro": "Each market carries its own chemistry, finish and failure modes. Choose the one that's yours."
+  },
+  "approach": {
+    "kicker": "How we work",
+    "heading": "A measured path from problem to repeatable production.",
+    "intro": "Nothing scales until it has been proven on the bench. Every stage produces documentation your team keeps."
+  },
+  "cases": {
+    "kicker": "Selected work",
+    "heading": "Real engagements, client details withheld.",
+    "intro": "We work under confidentiality, so these are described without naming the manufacturer. The numbers are not."
+  },
+  "confidentiality": {
+    "kicker": "Discretion by default",
+    "heading": "Your formulations never leave the room.",
+    "intro": "In this industry, your formulation is the business. We start every engagement with an NDA, and any recipe, process or supplier relationship we touch remains entirely yours.",
+    "secondParagraph": "It is also why we do not publish client names or logos. You are judging us on the depth of the work — not on whose badge we can display."
+  },
+  "insights": {
+    "kicker": "Insights",
+    "heading": "Notes from the lab bench.",
+    "intro": "Practical technical writing — the kind that shows expertise directly and needs no client's permission to publish."
+  },
+  "contact": {
+    "kicker": "Start a conversation",
+    "heading": "Tell us what's not working.",
+    "intro": "Describe the problem or the plant you have in mind. You'll hear back from the consultant directly — not a sales desk."
+  },
+  "about": {
+    "kicker": "The consultant",
+    "heading": "Led by a working paint technologist.",
+    "role": "Principal Consultant · Paint, Coating & Resin Technology",
+    "leadBio": "Placeholder bio: three decades formulating and troubleshooting coatings across decorative, industrial and construction-chemical lines, and commissioning manufacturing plants from an empty floor to running production.",
+    "secondBio": "The practice stays deliberately small and senior. When you engage Calibre, you work directly with the person doing the chemistry — not an account layer. Real names, credentials and history go here once the client is ready to share them.",
+    "standards": ["IS / BIS standards", "ASTM methods", "ISO 9001 QC systems", "VOC & eco-compliance", "Plant commissioning"]
+  }
+}
