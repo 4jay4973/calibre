@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   CONTACT_EMAIL,
   CONTACT_PHONE_DISPLAY,
@@ -20,15 +21,15 @@ export function SiteFooter() {
           </div>
           <div className="foot-col">
             <h4>Explore</h4>
-            <a href="/services">Capabilities</a>
-            <a href="/#sectors">Sectors</a>
-            <a href="/#approach">Approach</a>
-            <a href="/work">Selected work</a>
-            <a href="/insights">Insights</a>
+            <Link href="/services">Capabilities</Link>
+            <Link href="/#sectors">Sectors</Link>
+            <Link href="/#approach">Approach</Link>
+            <Link href="/work">Selected work</Link>
+            <Link href="/insights">Insights</Link>
           </div>
           <div className="foot-col">
             <h4>Contact</h4>
-            <a href="/#contact">Start a project</a>
+            <Link href="/#contact">Start a project</Link>
             <a href={MAILTO}>{CONTACT_EMAIL}</a>
             <a href={TEL}>{CONTACT_PHONE_DISPLAY}</a>
             <a href={WHATSAPP_URL} target="_blank" rel="noreferrer">WhatsApp</a>

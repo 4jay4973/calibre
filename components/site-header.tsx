@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
 
 // Items with their own page point at the real route; homepage-only sections use
 // "/#section" so they work from any page (navigate home, then scroll). Sectors
@@ -18,9 +19,9 @@ export function SiteHeader() {
   return (
     <header className="site-header">
       <div className="wrap nav">
-        <a className="brand" href="/" aria-label="Calibre — home">
+        <Link className="brand" href="/" aria-label="Calibre — home">
           Calibre<span className="dot">.</span> <small>Coating&nbsp;Consultancy</small>
-        </a>
+        </Link>
         <nav className={`nav-links ${open ? "open" : ""}`}>
           {links.map((l) => (
             <a key={l.href} href={l.href} onClick={() => setOpen(false)}>
@@ -29,7 +30,7 @@ export function SiteHeader() {
           ))}
         </nav>
         <div className="nav-cta">
-          <a href="/#contact" className="btn btn-primary">Discuss a project</a>
+          <Link href="/#contact" className="btn btn-primary">Discuss a project</Link>
           <button
             className="menu-btn"
             aria-label="Menu"
