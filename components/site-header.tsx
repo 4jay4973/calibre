@@ -24,9 +24,9 @@ export function SiteHeader() {
         </Link>
         <nav className={`nav-links ${open ? "open" : ""}`}>
           {links.map((l) => (
-            <a key={l.href} href={l.href} onClick={() => setOpen(false)}>
+            <Link key={l.href} href={l.href} onClick={() => setOpen(false)}>
               {l.label}
-            </a>
+            </Link>
           ))}
         </nav>
         <div className="nav-cta">
