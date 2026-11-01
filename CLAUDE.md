@@ -12,6 +12,7 @@ unless explicitly asked to change them.
 - Deploy target: Vercel.
 
 ## Commands
+- Node 24 (`.nvmrc`, `engines` in package.json; matches the Vercel build).
 - `npm run dev` — local dev
 - `npm run build` — production build (run this before declaring a task done)
 - `npm run lint`

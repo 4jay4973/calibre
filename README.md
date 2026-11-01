@@ -20,7 +20,7 @@ Build / run production:
 npm run build && npm start
 ```
 
-Requirements: Node 18.18+ (Node 20 LTS recommended).
+Requirements: **Node 24** (same as the Vercel build; pinned in `package.json` `engines` and `.nvmrc` — run `nvm use` if you use nvm).
 
 The content is served from **Sanity**. Copy `.env.example` to `.env.local` and fill
 in your project details (see [Content & the CMS](#content--the-cms)). Until a real
