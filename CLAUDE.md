@@ -15,7 +15,8 @@ unless explicitly asked to change them.
 - Node 24 (`.nvmrc`, `engines` in package.json; matches the Vercel build).
 - `npm run dev` — local dev
 - `npm run build` — production build (run this before declaring a task done)
-- `npm run lint`
+- `npm run lint` — ESLint CLI (`eslint .`, config in `eslint.config.mjs`). Next 16
+  builds no longer lint, so run this separately.
 
 ## Architecture rules (do not violate)
 1. **Content is never hard-coded in components.** Every section gets its content
@@ -30,7 +31,7 @@ unless explicitly asked to change them.
    system.
 4. **Server Components by default.** Add `"use client"` only when a component needs
    state/effects/browser APIs. Current client components: `site-header`,
-   `sections/contact`, `sections/sector-showcase`, `ui/reveal`, `ui/count-up`.
+   `sections/contact`, `sections/sector-showcase`, `ui/reveal`, `ui/count-up`, `same-page-scroll-top`.
 
 ## Design direction
 Grounded in coatings **metrology** — layered films, micron measurement, precision.

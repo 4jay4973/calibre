@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { revalidateTag } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { isValidSignature, SIGNATURE_HEADER_NAME } from "@sanity/webhook";
 import { SANITY_TAG, CONTENT_TYPES } from "@/lib/content/sanity";
 
@@ -12,6 +12,9 @@ import { SANITY_TAG, CONTENT_TYPES } from "@/lib/content/sanity";
 //    Unknown/absent _type falls back to the broad SANITY_TAG (refresh all).
 //    CONTENT_TYPES includes the "siteCopy" singleton, so publishing the
 //    Homepage / Site copy document revalidates the "siteCopy" tag (homepage).
+//
+// `{ expire: 0 }` (Next 16 requires a second argument) expires the data at once,
+// so the next visit renders fresh content; same behaviour as the Next 15 call.
 //
 // This is on top of the time-based ISR window in lib/content/sanity.ts, which
 // stays as the fallback if the webhook is ever missed.
@@ -46,12 +49,18 @@ export async function POST(request: Request) {
   const revalidated: string[] = [];
 
   if ((CONTENT_TYPES as readonly string[]).includes(type)) {
-    revalidateTag(type); // refresh just this type's pages (+ cross-linked pages tagged with it)
+    revalidateTag(type, { expire: 0 }); // refresh just this type's pages (+ cross-linked pages tagged with it)
     revalidated.push(type);
   } else {
-    revalidateTag(SANITY_TAG); // unknown/absent _type -> refresh all content
+    revalidateTag(SANITY_TAG, { expire: 0 }); // unknown/absent _type -> refresh all content
     revalidated.push(SANITY_TAG);
   }
+
+  // Also expire the cached pages themselves. With Next 16, tag expiry alone can
+  // let a page that is already past its 60s window be served stale once more
+  // after a publish; this keeps "publish, reload, see it" as before. The site is
+  // small, so re-rendering every page on its next visit is cheap.
+  revalidatePath("/", "layout");
 
   return NextResponse.json({ ok: true, revalidated });
 }

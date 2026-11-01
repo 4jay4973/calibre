@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Archivo, Source_Serif_4 } from "next/font/google";
 import "./globals.css";
+import { SamePageScrollTop } from "@/components/same-page-scroll-top";
 
 const archivo = Archivo({
   subsets: ["latin"],
@@ -30,8 +31,17 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${archivo.variable} ${serif.variable}`}>
-      <body>{children}</body>
+    <html
+      lang="en"
+      className={`${archivo.variable} ${serif.variable}`}
+      // Keeps Next 15's behaviour: page-to-page navigation jumps to the top
+      // instantly; the CSS smooth scroll still applies to in-page anchor links.
+      data-scroll-behavior="smooth"
+    >
+      <body>
+        {children}
+        <SamePageScrollTop />
+      </body>
     </html>
   );
 }

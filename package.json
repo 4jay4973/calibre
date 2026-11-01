@@ -9,18 +9,18 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "seed": "node --env-file=.env.local scripts/seed.mjs"
   },
   "dependencies": {
-    "@portabletext/react": "^3.2.4",
-    "@sanity/vision": "^3.99.0",
+    "@portabletext/react": "^8.0.1",
+    "@sanity/vision": "^6.21.0",
     "@sanity/webhook": "^4.0.4",
-    "next": "15.5.28",
-    "next-sanity": "^9.12.3",
-    "react": "19.0.0",
-    "react-dom": "19.0.0",
-    "sanity": "^3.99.0",
+    "next": "16.4.3",
+    "next-sanity": "^13.4.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "sanity": "^6.21.0",
     "styled-components": "^6.5.3"
   },
   "devDependencies": {
@@ -28,7 +28,16 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "9.39.5",
-    "eslint-config-next": "15.5.28",
+    "eslint-config-next": "16.4.3",
     "typescript": "^5"
+  },
+  "overrides": {
+    "@vercel/frameworks": {
+      "js-yaml": "^3.15.2",
+      "smol-toml": "^1.9.1"
+    },
+    "@module-federation/dts-plugin": {
+      "undici": "^7.30.1"
+    }
   }
 }
